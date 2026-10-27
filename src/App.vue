@@ -36,17 +36,29 @@ const cerrarMenu = () => { menuAbierto.value = false; };
       <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <div class="flex items-center gap-4">
           <RouterLink to="/" class="font-bold text-primary text-lg" @click="cerrarMenu">
-            Portal de postulaciones
+            Reclutamiento
           </RouterLink>
 
+          <!-- Links desktop -->
           <div class="hidden md:flex items-center gap-5">
             <template v-if="auth.isAuthenticated">
-              <RouterLink v-if="auth.rol === 'postulante'" to="/mi-panel" :class="linkClase('/mi-panel')">Mi panel</RouterLink>
+              <RouterLink
+                v-if="auth.rol === 'postulante'"
+                to="/mi-panel"
+                :class="linkClase('/mi-panel')"
+              >Mi panel</RouterLink>
+
               <template v-if="auth.rol === 'encargado' || auth.rol === 'admin'">
+                <RouterLink to="/encargado/procesos" :class="linkClase('/encargado/procesos')">Procesos</RouterLink>
                 <RouterLink to="/encargado/pendientes" :class="linkClase('/encargado/pendientes')">Pendientes</RouterLink>
                 <RouterLink to="/encargado/aceptadas" :class="linkClase('/encargado/aceptadas')">Aceptadas</RouterLink>
               </template>
-              <RouterLink v-if="auth.rol === 'admin'" to="/admin/usuarios" :class="linkClase('/admin/usuarios')">Usuarios</RouterLink>
+
+              <RouterLink
+                v-if="auth.rol === 'admin'"
+                to="/admin/usuarios"
+                :class="linkClase('/admin/usuarios')"
+              >Usuarios</RouterLink>
             </template>
           </div>
         </div>
@@ -61,24 +73,46 @@ const cerrarMenu = () => { menuAbierto.value = false; };
             </div>
             <button @click="salir" class="hidden md:block text-sm text-error hover:underline">Salir</button>
           </template>
-          <RouterLink v-else to="/login" class="hidden md:block text-sm px-4 py-1.5 bg-primary text-on-primary rounded-button hover:opacity-90">
+          <RouterLink
+            v-else
+            to="/login"
+            class="hidden md:block text-sm px-4 py-1.5 bg-primary text-on-primary rounded-button hover:opacity-90"
+          >
             Entrar
           </RouterLink>
 
+          <!-- Botón hamburguesa móvil -->
           <button @click="menuAbierto = !menuAbierto" class="md:hidden p-2 text-on-surface">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
           </button>
         </div>
       </div>
 
+      <!-- Menú móvil -->
       <div v-if="menuAbierto" class="md:hidden border-t border-outline-variant bg-surface px-4 py-3 space-y-3">
         <template v-if="auth.isAuthenticated">
-          <RouterLink v-if="auth.rol === 'postulante'" to="/mi-panel" class="block text-sm text-on-surface" @click="cerrarMenu">Mi panel</RouterLink>
+          <RouterLink
+            v-if="auth.rol === 'postulante'"
+            to="/mi-panel"
+            class="block text-sm text-on-surface"
+            @click="cerrarMenu"
+          >Mi panel</RouterLink>
+
           <template v-if="auth.rol === 'encargado' || auth.rol === 'admin'">
+            <RouterLink to="/encargado/procesos" class="block text-sm text-on-surface" @click="cerrarMenu">Procesos</RouterLink>
             <RouterLink to="/encargado/pendientes" class="block text-sm text-on-surface" @click="cerrarMenu">Pendientes</RouterLink>
             <RouterLink to="/encargado/aceptadas" class="block text-sm text-on-surface" @click="cerrarMenu">Aceptadas</RouterLink>
           </template>
-          <RouterLink v-if="auth.rol === 'admin'" to="/admin/usuarios" class="block text-sm text-on-surface" @click="cerrarMenu">Usuarios</RouterLink>
+
+          <RouterLink
+            v-if="auth.rol === 'admin'"
+            to="/admin/usuarios"
+            class="block text-sm text-on-surface"
+            @click="cerrarMenu"
+          >Usuarios</RouterLink>
+
           <button @click="salir" class="block text-sm text-error w-full text-left">Salir</button>
         </template>
         <RouterLink v-else to="/login" class="block text-sm text-primary font-medium" @click="cerrarMenu">Entrar</RouterLink>
