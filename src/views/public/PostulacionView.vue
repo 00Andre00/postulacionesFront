@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../../api/client';
 import type { Proceso, Etapa } from '../../types';
+import Spinner from '../../components/Spinner.vue';
 
 const route = useRoute();
 const procesoId = Number(route.params.procesoId);
@@ -38,9 +39,6 @@ const cargarProceso = async () => {
     cargandoProceso.value = false;
   }
 };
-
-onMounted(cargarProceso);
-
 
 const enviar = async () => {
   error.value = '';
@@ -78,54 +76,62 @@ const enviar = async () => {
     enviando.value = false;
   }
 };
+
+onMounted(cargarProceso);
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-12 px-4">
+  <div class="min-h-screen bg-surface py-12 px-4">
     <div class="max-w-2xl mx-auto">
-      <!-- Vista de credenciales generadas -->
-      <div v-if="resultado" class="bg-white rounded-lg shadow-lg p-8">
-        <h1 class="text-2xl font-bold text-green-700 mb-4">¡Postulación registrada!</h1>
-        <p class="text-gray-700 mb-6">
+      <!-- Credenciales generadas -->
+      <div v-if="resultado" class="bg-surface rounded-card border border-outline-variant p-8 shadow-sm">
+        <div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-4 text-xl">
+          ✓
+        </div>
+        <h1 class="text-2xl font-bold text-on-surface mb-4">¡Postulación registrada!</h1>
+        <p class="text-on-surface-variant mb-6">
           Guarda estas credenciales. Las necesitarás para consultar el estado de tu postulación.
           La cuenta expira el {{ new Date(resultado.credenciales.expiresAt).toLocaleDateString() }}.
         </p>
 
-        <div class="bg-gray-100 rounded p-4 mb-6">
-          <p class="mb-2"><span class="font-semibold">Usuario:</span> {{ resultado.credenciales.username }}</p>
-          <p><span class="font-semibold">Contraseña:</span> {{ resultado.credenciales.password }}</p>
+        <div class="bg-surface-variant rounded-lg p-4 mb-6">
+          <p class="mb-2 text-on-surface"><span class="font-semibold">Usuario:</span> {{ resultado.credenciales.username }}</p>
+          <p class="text-on-surface"><span class="font-semibold">Contraseña:</span> {{ resultado.credenciales.password }}</p>
         </div>
 
-        <div class="bg-blue-50 rounded p-4 mb-6 text-sm">
-          <p class="font-semibold text-blue-800 mb-2">Datos extraídos de tu CV:</p>
-          <ul class="text-blue-900 space-y-1">
+        <div class="bg-primary-container rounded-lg p-4 mb-6 text-sm">
+          <p class="font-semibold text-on-primary-container mb-2">Datos extraídos de tu CV:</p>
+          <ul class="text-on-primary-container space-y-1">
             <li><strong>Universidad:</strong> {{ resultado.datosExtraidos.universidad || 'No especificado' }}</li>
             <li><strong>Profesión:</strong> {{ resultado.datosExtraidos.profesion || 'No especificado' }}</li>
             <li><strong>Fecha de título:</strong> {{ resultado.datosExtraidos.fechaTitulo || 'No especificado' }}</li>
           </ul>
-          <p class="text-xs text-blue-700 mt-2">Un encargado revisará y confirmará estos datos antes de continuar el proceso.</p>
+          <p class="text-xs mt-2 opacity-80">Un encargado revisará y confirmará estos datos antes de continuar el proceso.</p>
         </div>
 
-        <RouterLink to="/login" class="block text-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        <RouterLink
+          to="/login"
+          class="block text-center px-4 py-2.5 bg-primary text-on-primary rounded-button hover:opacity-90"
+        >
           Ir a iniciar sesión
         </RouterLink>
       </div>
 
-      <!-- Vista del formulario -->
+      <!-- Formulario -->
       <div v-else>
-        <div v-if="cargandoProceso" class="text-center text-gray-500">Cargando proceso...</div>
+        <Spinner v-if="cargandoProceso" />
 
-        <div v-else-if="error && !proceso" class="bg-red-100 text-red-700 p-4 rounded">{{ error }}</div>
+        <div v-else-if="error && !proceso" class="bg-error-container text-on-error-container p-4 rounded-card">{{ error }}</div>
 
-        <div v-else-if="proceso" class="bg-white rounded-lg shadow-lg p-8">
-          <h1 class="text-2xl font-bold text-gray-800 mb-1">{{ proceso.nombre }}</h1>
-          <p class="text-gray-600 mb-6">{{ proceso.descripcion }}</p>
+        <div v-else-if="proceso" class="bg-surface rounded-card border border-outline-variant p-8 shadow-sm">
+          <h1 class="text-2xl font-bold text-on-surface mb-1">{{ proceso.nombre }}</h1>
+          <p class="text-on-surface-variant mb-6">{{ proceso.descripcion }}</p>
 
-          <div v-if="proceso.etapas?.length" class="mb-6 bg-gray-50 rounded p-4">
-            <p class="text-sm font-semibold text-gray-700 mb-2">Etapas del proceso:</p>
-            <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
+          <div v-if="proceso.etapas?.length" class="mb-6 bg-surface-variant rounded-lg p-4">
+            <p class="text-sm font-semibold text-on-surface mb-2">Etapas del proceso:</p>
+            <ol class="list-decimal list-inside text-sm text-on-surface-variant space-y-1">
               <li v-for="et in proceso.etapas" :key="et.id">
-                {{ et.nombre }} <span class="text-xs text-gray-400">({{ et.tipo }})</span>
+                {{ et.nombre }} <span class="text-xs opacity-70">({{ et.tipo }})</span>
               </li>
             </ol>
           </div>
@@ -133,29 +139,29 @@ const enviar = async () => {
           <form @submit.prevent="enviar" class="space-y-4">
             <div class="grid gap-4 md:grid-cols-2">
               <label class="block">
-                <span class="text-sm text-gray-600">Nombre</span>
-                <input v-model="nombre" type="text" required class="mt-1 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <span class="text-sm text-on-surface-variant">Nombre</span>
+                <input v-model="nombre" type="text" required class="mt-1 w-full px-4 py-2.5 bg-surface-variant border border-outline-variant rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
               </label>
               <label class="block">
-                <span class="text-sm text-gray-600">Apellido</span>
-                <input v-model="apellido" type="text" required class="mt-1 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <span class="text-sm text-on-surface-variant">Apellido</span>
+                <input v-model="apellido" type="text" required class="mt-1 w-full px-4 py-2.5 bg-surface-variant border border-outline-variant rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
               </label>
             </div>
 
             <label class="block">
-              <span class="text-sm text-gray-600">DNI</span>
-              <input v-model="dni" type="text" required class="mt-1 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <span class="text-sm text-on-surface-variant">DNI</span>
+              <input v-model="dni" type="text" required class="mt-1 w-full px-4 py-2.5 bg-surface-variant border border-outline-variant rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
             </label>
 
             <label class="block">
-              <span class="text-sm text-gray-600">CV en PDF</span>
-              <input @change="onFileChange" type="file" accept="application/pdf" required class="mt-1 w-full text-sm" />
-              <span class="text-xs text-gray-500">Máximo 10 MB.</span>
+              <span class="text-sm text-on-surface-variant">CV en PDF</span>
+              <input @change="onFileChange" type="file" accept="application/pdf" required class="mt-1 w-full text-sm text-on-surface-variant file:mr-3 file:px-4 file:py-2 file:rounded-button file:border-0 file:bg-primary file:text-on-primary file:cursor-pointer hover:file:opacity-90" />
+              <span class="text-xs text-on-surface-variant">Máximo 10 MB.</span>
             </label>
 
-            <p v-if="error" class="text-red-600 text-sm">{{ error }}</p>
+            <p v-if="error" class="text-error text-sm">{{ error }}</p>
 
-            <button type="submit" :disabled="enviando" class="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">
+            <button type="submit" :disabled="enviando" class="w-full py-2.5 bg-primary text-on-primary rounded-button hover:opacity-90 disabled:opacity-50 transition">
               {{ enviando ? 'Procesando CV...' : 'Enviar postulación' }}
             </button>
           </form>
